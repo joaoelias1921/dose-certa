@@ -1,0 +1,214 @@
+package br.pucpr.appdev.dosecerta.ui.screens.newprescription
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import br.pucpr.appdev.dosecerta.R
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import br.pucpr.appdev.dosecerta.repositories.PrescriptionRepository
+import br.pucpr.appdev.dosecerta.ui.components.AddMedicineButton
+import br.pucpr.appdev.dosecerta.ui.components.MedicineCard
+import br.pucpr.appdev.dosecerta.ui.components.MedicineDialog
+import br.pucpr.appdev.dosecerta.ui.components.NoMedicinesAddedInformational
+import br.pucpr.appdev.dosecerta.ui.theme.BackgroundLight
+import br.pucpr.appdev.dosecerta.ui.theme.DisabledBlue
+import br.pucpr.appdev.dosecerta.ui.theme.DoseCertaBlue
+import br.pucpr.appdev.dosecerta.ui.theme.LightBorder
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NewPrescriptionScreen(
+    repository: PrescriptionRepository,
+    onSavePrescription: () -> Unit,
+    onNavigateBack: () -> Unit,
+) {
+    val viewModel: NewPrescriptionViewModel = viewModel(
+        factory = NewPrescriptionViewModel.factory(repository)
+    )
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.isCreated) {
+        if (uiState.isCreated) onSavePrescription()
+    }
+
+    Scaffold(
+        topBar = {
+            Column {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.new_prescription_title),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            onNavigateBack()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                contentDescription = stringResource(R.string.go_back)
+                            )
+                        }
+                    }
+                )
+                HorizontalDivider(
+                    color = LightBorder,
+                    thickness = 2.dp
+                )
+            }
+        }
+    ) { paddingValues ->
+        if (uiState.isCreatingMedicine) {
+            MedicineDialog(
+                medicineData = uiState.newMedicine,
+                onChangeName = viewModel::setNewMedicineName,
+                onChangeDosage = viewModel::setNewMedicineDosage,
+                onChangeFrequency = viewModel::setNewMedicineFrequency,
+                onChangeObservations = viewModel::setNewMedicineObservations,
+                onAddMedicine = viewModel::addNewMedicine,
+                onDismissDialog = viewModel::toggleNewMedicineModal
+            )
+        }
+
+        Box (
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(top = 24.dp)
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                OutlinedTextField(
+                    value = uiState.prescriptionName,
+                    onValueChange = { viewModel.setPrescriptionName(it) },
+                    label = { Text(text = stringResource(R.string.new_prescription_presc_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DoseCertaBlue,
+                        focusedLabelColor = DoseCertaBlue,
+                    ),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.new_prescription_presc_name_placeholder)
+                        )
+                    },
+                    singleLine = true
+                )
+                Box(
+                    modifier = Modifier.padding(vertical = 32.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.medicines),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                }
+                if (uiState.prescriptionMedicines.isEmpty()) {
+                    NoMedicinesAddedInformational(
+                        onAddMedicineClick = viewModel::toggleNewMedicineModal
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        uiState.prescriptionMedicines.forEachIndexed { index, medicine ->
+                            item {
+                                MedicineCard(
+                                    medicineData = medicine,
+                                    onRemoveMedicine = {
+                                        viewModel.removeMedicineAt(index)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                if (uiState.prescriptionMedicines.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .background(color = BackgroundLight),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = { viewModel.saveNewPrescription() },
+                            shape = ShapeDefaults.Small,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = DoseCertaBlue,
+                                disabledContainerColor = DisabledBlue,
+                                disabledContentColor = BackgroundLight
+                            ),
+                            enabled = uiState.prescriptionMedicines.isNotEmpty() &&
+                                    uiState.prescriptionName.isNotEmpty()
+                        ) {
+                            if (uiState.isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                return@Button
+                            }
+                            Text(text = stringResource(R.string.new_prescription_create_presc))
+                        }
+                        AddMedicineButton(onAddMedicineClick = viewModel::toggleNewMedicineModal)
+                        Button(
+                            onClick = { onNavigateBack() },
+                            shape = ShapeDefaults.Small,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = DoseCertaBlue
+                            )
+                        ) {
+                            Text(text = stringResource(R.string.cancel))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
