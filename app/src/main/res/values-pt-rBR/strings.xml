@@ -90,4 +90,6 @@
     <string name="new_prescription_already_added_medicine">Este medicamento já foi adicionado na receita. Por favor, insira outro</string>
     <string name="error_updating_alarm_status">Algo deu errado ao atualizar o status do alarme</string>
     <string name="presc_details_enable_again">Ativar novamente</string>
+    <string name="alarm_time_to_take">Hora de tomar</string>
+    <string name="alarm_enable_something_went_wrong">Algo deu errado ao ativar o alarme</string>
 </resources>

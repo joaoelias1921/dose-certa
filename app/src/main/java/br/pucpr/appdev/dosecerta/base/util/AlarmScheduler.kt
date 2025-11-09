@@ -4,11 +4,11 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.provider.AlarmClock
-import android.util.Log
 import android.widget.Toast
 import java.util.Calendar
+import br.pucpr.appdev.dosecerta.R
 
-class AlarmScheduler(private val context: Context) {
+class AlarmScheduler(private val context: Context, val stringProvider: StringProvider) {
     fun scheduleDailyAlarm(
         medicineName: String,
         hour: Int,
@@ -17,7 +17,12 @@ class AlarmScheduler(private val context: Context) {
         val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
             putExtra(AlarmClock.EXTRA_HOUR, hour)
             putExtra(AlarmClock.EXTRA_MINUTES, minute)
-            putExtra(AlarmClock.EXTRA_MESSAGE, "Hora de tomar $medicineName!")
+            putExtra(
+                AlarmClock.EXTRA_MESSAGE,
+                "${stringProvider.getString(
+                    R.string.alarm_time_to_take
+                )} $medicineName!",
+            )
             putExtra(
                 AlarmClock.EXTRA_DAYS, arrayListOf(
                 Calendar.MONDAY,
@@ -38,7 +43,9 @@ class AlarmScheduler(private val context: Context) {
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(
                 context,
-                "Algo deu errado ao ativar o alarme",
+                stringProvider.getString(
+                    R.string.alarm_enable_something_went_wrong
+                ),
                 Toast.LENGTH_SHORT
             ).show()
         }
