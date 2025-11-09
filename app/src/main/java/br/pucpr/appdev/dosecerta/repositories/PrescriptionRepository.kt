@@ -79,6 +79,32 @@ class PrescriptionRepository {
         }
     }
 
+    suspend fun activateMedicineAlarmStatus(medicineName: String, prescriptionId: String) {
+        val snapshot = prescriptionsCollection
+            .document(prescriptionId)
+            .get()
+            .await()
+        val medicinesData = snapshot.get("medicines")
+            ?.let { it as? List<*> }
+            .orEmpty()
+            .filterIsInstance<Map<String, Any>>()
+        val targetMedicine = medicineName.trim().lowercase()
+
+        val updatedMedicines = medicinesData.map { medicineMap ->
+            val currentMapName = medicineMap["name"]?.toString()?.trim()?.lowercase()
+            if (currentMapName == targetMedicine) {
+                medicineMap.toMutableMap().apply { this["alarmActive"] = true }
+            } else {
+                medicineMap
+            }
+        }
+
+        prescriptionsCollection
+            .document(prescriptionId)
+            .update("medicines", updatedMedicines)
+            .await()
+    }
+
     private fun getCurrentUser(): FirebaseUser {
         return auth.currentUser ?: throw Exception("Usuário não autenticado")
     }

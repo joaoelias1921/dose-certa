@@ -1,5 +1,6 @@
 package br.pucpr.appdev.dosecerta.ui.screens.prescriptiondetails
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -74,6 +75,21 @@ class PrescriptionDetailsViewModel(
                         R.string.error_deleting_prescription
                     ),
                     showDeleteModal = false
+                )}
+            }
+        }
+    }
+
+    fun updateMedicineAlarmStatusToActive(medicineName: String) {
+        viewModelScope.launch {
+            try {
+                repository.activateMedicineAlarmStatus(medicineName, prescriptionId)
+            } catch (e: Exception) {
+                Log.d("TESTE", e.message ?: "")
+                _uiEvents.update { it.copy(
+                    errorMessage = stringProvider.getString(
+                        R.string.error_updating_alarm_status
+                    ),
                 )}
             }
         }

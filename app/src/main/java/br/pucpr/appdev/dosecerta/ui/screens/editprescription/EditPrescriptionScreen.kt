@@ -1,5 +1,6 @@
 package br.pucpr.appdev.dosecerta.ui.screens.editprescription
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import br.pucpr.appdev.dosecerta.R
@@ -42,6 +44,7 @@ import br.pucpr.appdev.dosecerta.ui.components.MedicineCard
 import br.pucpr.appdev.dosecerta.ui.components.MedicineDialog
 import br.pucpr.appdev.dosecerta.ui.components.NoMedicinesAddedInformational
 import br.pucpr.appdev.dosecerta.ui.components.ScreenLoadingIndicator
+import br.pucpr.appdev.dosecerta.ui.components.TimePickerDialog
 import br.pucpr.appdev.dosecerta.ui.theme.BackgroundLight
 import br.pucpr.appdev.dosecerta.ui.theme.DisabledBlue
 import br.pucpr.appdev.dosecerta.ui.theme.DoseCertaBlue
@@ -59,8 +62,21 @@ fun EditPrescriptionScreen(
         factory = EditPrescriptionViewModel.factory(repository, stringProvider)
     )
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current.applicationContext
+    val alreadyAddedMedicineErrorText = stringResource(
+        R.string.new_prescription_already_added_medicine
+    )
 
-    LaunchedEffect(uiState.isSaved) {
+    LaunchedEffect(uiState.isSaved, uiState.duplicatedMedicineError) {
+        if (uiState.duplicatedMedicineError) {
+            Toast.makeText(
+                context,
+                alreadyAddedMedicineErrorText,
+                Toast.LENGTH_LONG
+            ).show()
+            viewModel.resetDuplicatedMedicineError()
+            return@LaunchedEffect
+        }
         if (uiState.isSaved) onSavePrescription()
     }
 
@@ -101,10 +117,18 @@ fun EditPrescriptionScreen(
                         medicineData = uiState.newMedicine,
                         onChangeName = viewModel::setNewMedicineName,
                         onChangeDosage = viewModel::setNewMedicineDosage,
-                        onChangeFrequency = viewModel::setNewMedicineFrequency,
                         onChangeObservations = viewModel::setNewMedicineObservations,
-                        onAddMedicine = viewModel::addNewMedicine,
+                        onContinue = viewModel::chooseTimeToTake,
                         onDismissDialog = viewModel::toggleNewMedicineModal
+                    )
+                }
+
+                if (uiState.isPickingTimeToTake) {
+                    TimePickerDialog(
+                        selectedHourToTake = uiState.selectedHourToTake,
+                        selectedMinuteToTake = uiState.selectedMinuteToTake,
+                        onDismiss = viewModel::toggleTimeToTakePickerModal,
+                        onConfirm = viewModel::addNewMedicine
                     )
                 }
 
@@ -122,7 +146,11 @@ fun EditPrescriptionScreen(
                         OutlinedTextField(
                             value = uiState.prescriptionName,
                             onValueChange = { viewModel.setPrescriptionName(it) },
-                            label = { Text(text = stringResource(R.string.new_prescription_presc_name)) },
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.new_prescription_presc_name)
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = DoseCertaBlue,
@@ -130,7 +158,9 @@ fun EditPrescriptionScreen(
                             ),
                             placeholder = {
                                 Text(
-                                    text = stringResource(R.string.new_prescription_presc_name_placeholder)
+                                    text = stringResource(
+                                        R.string.new_prescription_presc_name_placeholder
+                                    )
                                 )
                             },
                             singleLine = true

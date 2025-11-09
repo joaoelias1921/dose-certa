@@ -15,13 +15,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Locale
 
 class NewPrescriptionViewModel(val repository: PrescriptionRepository): ViewModel() {
-    private val _uiState = MutableStateFlow(NewPrescriptionUiState())
+    private val _uiState = MutableStateFlow(NewPrescriptionUiState(
+        selectedHourToTake = Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+        selectedMinuteToTake = Calendar.getInstance().get(Calendar.MINUTE)
+    ))
     val uiState: StateFlow<NewPrescriptionUiState> = _uiState.asStateFlow()
 
     fun toggleNewMedicineModal() {
         _uiState.update { it.copy(isCreatingMedicine = !it.isCreatingMedicine) }
+    }
+
+    fun toggleTimeToTakePickerModal() {
+        _uiState.update { it.copy(isPickingTimeToTake = !it.isPickingTimeToTake) }
     }
 
     fun setPrescriptionName(value: String) {
@@ -52,16 +61,42 @@ class NewPrescriptionViewModel(val repository: PrescriptionRepository): ViewMode
         }
     }
 
-    fun addNewMedicine() {
+    fun addNewMedicine(hour: Int, minute: Int) {
         _uiState.update { currentState ->
-            val newMedicineItem = currentState.newMedicine
+            val formattedHour = String.format(Locale.ROOT, "%02d", hour)
+            val formattedMinute = String.format(Locale.ROOT, "%02d", minute)
+            val newMedicineItem = currentState.newMedicine.copy(
+                timeToTake = "${formattedHour}:${formattedMinute}",
+                alarmActive = false
+            )
             val updatedList = currentState.prescriptionMedicines + newMedicineItem
             currentState.copy(
                 prescriptionMedicines = updatedList,
                 newMedicine = Medicine(),
-                isCreatingMedicine = false
+                isCreatingMedicine = false,
+                isPickingTimeToTake = false
             )
         }
+    }
+
+    fun resetDuplicatedMedicineError() {
+        _uiState.update { it.copy(duplicatedMedicineError = false) }
+    }
+
+    fun chooseTimeToTake() {
+        val currentState = uiState.value
+        val newMedicineName = currentState.newMedicine.name.trim()
+        val alreadyExists = currentState.prescriptionMedicines.any {
+            it.name.trim().equals(newMedicineName, ignoreCase = true)
+        }
+
+        if (alreadyExists) {
+            _uiState.update { it.copy(duplicatedMedicineError = true) }
+            return
+        }
+
+        toggleNewMedicineModal()
+        toggleTimeToTakePickerModal()
     }
 
     fun removeMedicineAt(selectedIndex: Int) {

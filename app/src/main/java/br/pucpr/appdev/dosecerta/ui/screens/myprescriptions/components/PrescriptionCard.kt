@@ -78,7 +78,7 @@ fun PrescriptionCard(
                     text = "${stringResource(R.string.updated_at)}: ",
                     fontWeight = FontWeight.Bold
                 )
-                Text(text = prescription.createdAt, color = SecondaryText)
+                Text(text = prescription.updatedAt, color = SecondaryText)
             }
             Box(
                 modifier = Modifier

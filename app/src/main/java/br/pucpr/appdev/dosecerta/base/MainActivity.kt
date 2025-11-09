@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         val firebaseMessaging = FirebaseMessaging.getInstance()
-        firebaseMessaging.subscribeToTopic("time_to_take")
+        firebaseMessaging.subscribeToTopic("new_user_registered")
     }
 
     @Preview(showBackground = true)

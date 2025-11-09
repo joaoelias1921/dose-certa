@@ -28,9 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import br.pucpr.appdev.dosecerta.R
@@ -39,9 +41,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.pucpr.appdev.dosecerta.base.util.StringProvider
+import br.pucpr.appdev.dosecerta.base.util.AlarmScheduler
 import br.pucpr.appdev.dosecerta.repositories.PrescriptionRepository
 import br.pucpr.appdev.dosecerta.ui.components.MedicineCard
 import br.pucpr.appdev.dosecerta.ui.components.ScreenLoadingIndicator
+import br.pucpr.appdev.dosecerta.ui.screens.prescriptiondetails.components.AddAlarmButton
+import br.pucpr.appdev.dosecerta.ui.screens.prescriptiondetails.components.AlarmEnabledRow
 import br.pucpr.appdev.dosecerta.ui.theme.BackgroundLight
 import br.pucpr.appdev.dosecerta.ui.theme.DestructiveActionRed
 import br.pucpr.appdev.dosecerta.ui.theme.DisabledBlue
@@ -63,6 +68,8 @@ fun PrescriptionDetailsScreen(
         factory = PrescriptionDetailsViewModel.factory(repository, stringProvider)
     )
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current.applicationContext
+    val alarmScheduler = remember { AlarmScheduler(context) }
 
     LaunchedEffect(uiState.isDeleted) {
         if (uiState.isDeleted) onDeletePrescription()
@@ -204,7 +211,43 @@ fun PrescriptionDetailsScreen(
                             items(
                                 items = uiState.prescription?.medicines ?: emptyList()
                             ) { medicine ->
-                                MedicineCard(medicineData = medicine)
+                                val timeParts = medicine.timeToTake.split(":")
+                                val hour = timeParts.getOrNull(0)?.toIntOrNull() ?: 0
+                                val minute = timeParts.getOrNull(1)?.toIntOrNull() ?: 0
+
+                                MedicineCard(
+                                    medicineData = medicine,
+                                    extraContent = {
+                                        if (medicine.alarmActive) {
+                                            AlarmEnabledRow(
+                                                onEnableAgain = {
+                                                    alarmScheduler.scheduleDailyAlarm(
+                                                        medicine.name,
+                                                        hour,
+                                                        minute
+                                                    )
+                                                }
+                                            )
+                                            return@MedicineCard
+                                        }
+
+                                        AddAlarmButton(
+                                            buttonLabel = "${stringResource(
+                                                R.string.presc_details_add_alarm_for
+                                            )} ${medicine.timeToTake}",
+                                            onClick = {
+                                                viewModel.updateMedicineAlarmStatusToActive(
+                                                    medicine.name
+                                                )
+                                                alarmScheduler.scheduleDailyAlarm(
+                                                    medicine.name,
+                                                    hour,
+                                                    minute
+                                                )
+                                            }
+                                        )
+                                    }
+                                )
                             }
                         }
                         Column(

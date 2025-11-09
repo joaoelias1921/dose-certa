@@ -130,6 +130,7 @@ class AuthViewModel(
         return when {
             name.isBlank() -> UserDataConstants.EMPTY_FIELD_ERROR
             name.length < 2 -> UserDataConstants.INVALID_FIELD_ERROR
+            name.firstOrNull()?.isLowerCase() ?: false -> UserDataConstants.INVALID_FIELD_ERROR
             else -> UserDataConstants.VALID_FIELD
         }
     }

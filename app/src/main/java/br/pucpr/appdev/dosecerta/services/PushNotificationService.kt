@@ -1,4 +1,4 @@
-package br.pucpr.appdev.dosecerta.base.util
+package br.pucpr.appdev.dosecerta.services
 
 import android.Manifest
 import android.app.Notification
@@ -7,9 +7,9 @@ import android.app.NotificationManager
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import br.pucpr.appdev.dosecerta.R
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import br.pucpr.appdev.dosecerta.R
 
 class PushNotificationService: FirebaseMessagingService() {
     override fun onNewToken(token: String) {
@@ -18,7 +18,6 @@ class PushNotificationService: FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        // Respond to received messages
         val title = message.notification?.title
         val body = message.notification?.body
         val channelId = "HEADS_UP_NOTIFICATIONS"
@@ -37,8 +36,6 @@ class PushNotificationService: FirebaseMessagingService() {
             this,
             Manifest.permission.POST_NOTIFICATIONS
         ) != PackageManager.PERMISSION_GRANTED) {
-            // If permission is not granted, simply return.
-            // The user has likely denied the notification permission.
             return
         }
 

@@ -80,4 +80,14 @@
     <string name="my_prescriptions_confirm_signout">Tem certeza que deseja sair?</string>
     <string name="my_prescriptions_go_out">Sair</string>
     <string name="my_prescriptions_you_can_login_anytime">Você pode fazer login novamente em qualquer momento</string>
+    <string name="hour">Horário</string>
+    <string name="confirm">Confirmar</string>
+    <string name="continue_action">Continuar</string>
+    <string name="new_prescription_inform_time_to_take">Informe o horário do medicamento</string>
+    <string name="new_prescription_wip_app_disclaimer">O DoseCerta está em constante evolução. Em breve você poderá usar frequências e horários mais personalizados para seus medicamentos</string>
+    <string name="presc_details_add_alarm_for">Ativar alarme diário às</string>
+    <string name="presc_details_alarm_enabled">Alarme já ativo</string>
+    <string name="new_prescription_already_added_medicine">Este medicamento já foi adicionado na receita. Por favor, insira outro</string>
+    <string name="error_updating_alarm_status">Algo deu errado ao atualizar o status do alarme</string>
+    <string name="presc_details_enable_again">Ativar novamente</string>
 </resources>
