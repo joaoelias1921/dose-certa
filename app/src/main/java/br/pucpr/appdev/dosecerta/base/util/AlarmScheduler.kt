@@ -41,7 +41,6 @@ class AlarmScheduler(private val context: Context) {
                 "Algo deu errado ao ativar o alarme",
                 Toast.LENGTH_SHORT
             ).show()
-            Log.d("ALARMMANAGER", e.message ?: "ruim")
         }
     }
 }
