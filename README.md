@@ -131,13 +131,22 @@ To build and run DoseCerta, you need [Android Studio](https://developer.android.
     ```bash
     git clone [https://github.com/joaoelias1921/dose-certa.git](https://github.com/joaoelias1921/dose-certa.git)
     ```
-2.  **Open the project in Android Studio**;
-3.  **Configure Firebase**: You need a configured Firebase project:
-    * Create a Firebase project;
-    * Register a new Android application and download the `google-services.json` file;
-    * Place the file in the project's `app/` folder;
+2.  **Open the project in Android Studio;**
+3.  **Configure Firebase**: you need a configured Firebase project:
+    - Create a project on Firebase;
+    - Register a new Android application and download the `google-services.json` file;
+    - Place the file in the project's app/ folder;
+4.  **Configure Cloud Messaging/Cloud Functions**: to use the Firebase messaging service, you must configure and deploy the service on Cloud Functions:
+    - At the root of the repository, copy the `firebase-notifications` folder and paste it in an easily accessible location;
+    - Open the folder with VSCode or your preferred code editor;
+    - In the terminal, verify that you have Node and Firebase Tools installed in your CLI (use the command `npm install -g firebase-tools` after installing [Node](https://nodejs.org/pt/download), to install Firebase Tools);
+    - In the terminal, execute the command `firebase login`, and log in via the browser (opened automatically);
+    - In the terminal, execute the command `npm i` to install dependencies;
+    - Execute the command `firebase deploy --only functions:androidPushNotification`. This will deploy the **androidPushNotification** service on Firebase Cloud Functions (requires the Blaze plan to be subscribed).
 5.  **Check build configurations:** In the `app/build.gradle` file, the `targetSdk` line must have a value of 30 or greater;
-6.  **Build and Run:** Build the project and execute it on your emulator/device.
+6.  **Build and run:** Build the project and execute it on your emulator/device. Create a new account and check if you will receive the confirmation creation push notification.
+
+<br>
 
 ### ⚠️ Required AndroidManifest Configuration (Android 11+/API 30+)
 
