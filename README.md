@@ -53,8 +53,15 @@ Para buildar e rodar o DoseCerta, você precisa do [Android Studio](https://deve
       - Crie um projeto no Firebase;
       - Registre um novo aplicativo Android e faça download do arquivo `google-services.json`;
       - Coloque o arquivo na pasta app/ do projeto;
+4.  **Configurar Cloud Messaging/Cloud Functions**: para utilizar o serviço de mensageria do Firebase, é necessário configurar e fazer deploy do serviço no Cloud Functions:
+      - Na raíz do repositório, copie a pasta `firebase-notifications` e cole em um local de fácil acesso;
+      - Abra a pasta com o VSCode ou seu editor de código preferido;
+      - No terminal, verifique se possui o Node e Firebase Tools instalados no seu CLI (use o comando `npm install -g firebase-tools` após instalar o [Node](https://nodejs.org/pt/download), para instalar o Firebase Tools);
+      - No terminal, execute o comando `firebase login`, e efetue o login via browser (aberto automaticamente);
+      - No terminal, execute o comando `npm i` para instalar as dependências;
+      - Execute o comando `firebase deploy --only functions:androidPushNotification`. Isto fará deploy do serviço **androidPushNotification** no Firebase Cloud Functions (requer que o plano Blaze esteja assinado).
 5.  **Verifique as configurações de build:** No arquivo `app/build.gradle`, a linha `targetSdk` deve ter o valor 30 ou maior;
-6.  **Buildar e rodar:** Faça build do projeto e execute-o em seu emulador/dispositivo.
+6.  **Buildar e rodar:** Faça build do projeto e execute-o em seu emulador/dispositivo. Crie uma nova conta e verifique se receberá a notificação push de confirmação de criação.
 
 <br>
 
