@@ -59,7 +59,8 @@ Para buildar e rodar o DoseCerta, você precisa do [Android Studio](https://deve
       - No terminal, verifique se possui o Node e Firebase Tools instalados no seu CLI (use o comando `npm install -g firebase-tools` após instalar o [Node](https://nodejs.org/pt/download), para instalar o Firebase Tools);
       - No terminal, execute o comando `firebase login`, e efetue o login via browser (aberto automaticamente);
       - No terminal, execute o comando `npm i` para instalar as dependências;
-      - Execute o comando `firebase deploy --only functions:androidPushNotification`. Isto fará deploy do serviço **androidPushNotification** no Firebase Cloud Functions (requer que o plano Blaze esteja assinado).
+      - Execute o comando `firebase deploy --only functions:androidPushNotification`. Isto fará deploy do serviço **androidPushNotification** no Firebase Cloud Functions (requer que o plano Blaze esteja assinado);
+      - (Nota) O serviço `checkAndSendNotifications` presente no arquivo `index.js` serve para usar o Cloud Scheduler (Google Cloud) como cronjob para enviar notificações push em horários específicos, como lembretes. No entanto, este serviço ainda está em fase de implementação.
 5.  **Verifique as configurações de build:** No arquivo `app/build.gradle`, a linha `targetSdk` deve ter o valor 30 ou maior;
 6.  **Buildar e rodar:** Faça build do projeto e execute-o em seu emulador/dispositivo. Crie uma nova conta e verifique se receberá a notificação push de confirmação de criação.
 
@@ -143,6 +144,7 @@ To build and run DoseCerta, you need [Android Studio](https://developer.android.
     - In the terminal, execute the command `firebase login`, and log in via the browser (opened automatically);
     - In the terminal, execute the command `npm i` to install dependencies;
     - Execute the command `firebase deploy --only functions:androidPushNotification`. This will deploy the **androidPushNotification** service on Firebase Cloud Functions (requires the Blaze plan to be subscribed).
+    - (Note) The `checkAndSendNotifications` service contained in the `index.js` file uses Cloud Scheduler (Google Cloud) as a cronjob to send push notifications at specific times, like push reminders. However, this service is still a WIP.
 5.  **Check build configurations:** In the `app/build.gradle` file, the `targetSdk` line must have a value of 30 or greater;
 6.  **Build and run:** Build the project and execute it on your emulator/device. Create a new account and check if you will receive the confirmation creation push notification.
 
