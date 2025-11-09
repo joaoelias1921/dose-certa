@@ -40,7 +40,7 @@ class AlarmScheduler(private val context: Context, val stringProvider: StringPro
 
         try {
             context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             Toast.makeText(
                 context,
                 stringProvider.getString(

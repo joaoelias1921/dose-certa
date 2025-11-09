@@ -69,7 +69,7 @@ fun PrescriptionDetailsScreen(
     )
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current.applicationContext
-    val alarmScheduler = remember { AlarmScheduler(context) }
+    val alarmScheduler = remember { AlarmScheduler(context, stringProvider) }
 
     LaunchedEffect(uiState.isDeleted) {
         if (uiState.isDeleted) onDeletePrescription()
