@@ -98,9 +98,19 @@ exports.checkAndSendNotifications = onSchedule(
 exports.androidPushNotification = firestore.onDocumentCreated(
     "users/{docId}",
     (event) => {
-        const snapshot = event.data;
-        const { name } = snapshot.data();
-        const firstName = name.split(" ")[0];
+        const documentData = event.data.data();
+
+        if (!documentData || !documentData.name) {
+            return admin.messaging().send({
+                topic: "new_user_registered",
+                notification: {
+                    title: "Olá!",
+                    body: "Seja muito bem vindo ao DoseCerta. Você já pode começar a usar nossos serviços",
+                },
+                android: { priority: "high" },
+            });
+        }
+        const firstName = documentData.name.split(" ")[0];
 
         return admin.messaging().send({
             topic: "new_user_registered",

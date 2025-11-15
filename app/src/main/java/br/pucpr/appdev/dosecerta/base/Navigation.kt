@@ -29,10 +29,10 @@ class Navigation {
         val applicationContext = LocalContext.current
         navController = rememberNavController()
 
-        val userRepository = remember { UserRepository() }
-        val prescriptionsRepository = remember { PrescriptionRepository() }
-        val appPreferencesRepository = remember { AppPreferencesRepository(applicationContext) }
         val stringProvider = remember { AndroidStringProvider(applicationContext) }
+        val userRepository = remember { UserRepository() }
+        val prescriptionsRepository = remember { PrescriptionRepository(stringProvider) }
+        val appPreferencesRepository = remember { AppPreferencesRepository(applicationContext) }
 
         NavHost(navController = navController, startDestination = Routes.Startup.route) {
             composable(Routes.Startup.route) {

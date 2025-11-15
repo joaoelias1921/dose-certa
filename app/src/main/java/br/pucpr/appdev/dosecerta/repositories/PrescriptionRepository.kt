@@ -1,6 +1,8 @@
 package br.pucpr.appdev.dosecerta.repositories
 
+import br.pucpr.appdev.dosecerta.base.util.AndroidStringProvider
 import br.pucpr.appdev.dosecerta.models.Prescription
+import br.pucpr.appdev.dosecerta.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -11,7 +13,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
-class PrescriptionRepository {
+class PrescriptionRepository(val stringProvider: AndroidStringProvider) {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val prescriptionsCollection = firestore.collection("prescriptions")
@@ -45,9 +47,15 @@ class PrescriptionRepository {
     }
 
     suspend fun updatePrescription(prescription: Prescription) {
-        val currentUser = auth.currentUser ?: throw Exception("Usuário não autenticado")
+        val currentUser = auth.currentUser ?: throw Exception(
+            stringProvider.getString(R.string.user_not_authenticated)
+        )
         if (prescription.userId != currentUser.uid) {
-            throw SecurityException("Você não tem permissão para alterar este recurso")
+            throw SecurityException(
+                stringProvider.getString(
+                    R.string.user_has_no_permission_to_alter_resource
+                )
+            )
         }
         prescriptionsCollection
             .document(prescription.id)
@@ -106,6 +114,8 @@ class PrescriptionRepository {
     }
 
     private fun getCurrentUser(): FirebaseUser {
-        return auth.currentUser ?: throw Exception("Usuário não autenticado")
+        return auth.currentUser ?: throw Exception(stringProvider.getString(
+            R.string.user_not_authenticated)
+        )
     }
 }

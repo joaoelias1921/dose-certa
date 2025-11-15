@@ -92,4 +92,6 @@
     <string name="presc_details_enable_again">Ativar novamente</string>
     <string name="alarm_time_to_take">Hora de tomar</string>
     <string name="alarm_enable_something_went_wrong">Algo deu errado ao ativar o alarme</string>
+    <string name="user_not_authenticated">Usuário não autenticado</string>
+    <string name="user_has_no_permission_to_alter_resource">Você não tem permissão para alterar este recurso</string>
 </resources>
